@@ -1,0 +1,1102 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Schrank 3D</title>
+
+    <style>
+
+    * {
+        box-sizing: border-box;
+    }
+
+    html,
+    body {
+        margin: 0;
+        padding: 0;
+
+        width: 100%;
+        height: 100%;
+
+        overflow: hidden;
+
+        font-family:
+            Inter,
+            Arial,
+            Helvetica,
+            sans-serif;
+
+        background: #090b0f;
+    }
+
+    #container {
+        width: 100%;
+        height: 100%;
+    }
+
+
+    /* =====================================================
+       UI DESKTOP
+       ===================================================== */
+
+    #ui {
+        position: absolute;
+
+        top: 20px;
+        left: 20px;
+
+        z-index: 10;
+
+        width: 260px;
+
+        padding: 18px;
+
+        background:
+            rgba(15, 18, 24, 0.92);
+
+        border: 1px solid
+            rgba(255, 255, 255, 0.08);
+
+        border-radius: 14px;
+
+        box-shadow:
+            0 12px 40px
+            rgba(0, 0, 0, 0.45);
+
+        backdrop-filter:
+            blur(12px);
+
+        color: #f1f3f5;
+    }
+
+
+    #ui h3 {
+        margin: 0 0 16px 0;
+
+        font-size: 18px;
+        font-weight: 600;
+
+        color: #ffffff;
+    }
+
+
+    #ui hr {
+        border: 0;
+
+        height: 1px;
+
+        margin: 16px 0;
+
+        background:
+            rgba(255, 255, 255, 0.08);
+    }
+
+
+    /* =====================================================
+       BUTTONS
+       ===================================================== */
+
+    button {
+        width: 100%;
+
+        min-height: 42px;
+
+        margin: 6px 0;
+
+        padding: 10px 12px;
+
+        border: 1px solid
+            rgba(255, 255, 255, 0.08);
+
+        border-radius: 9px;
+
+        background: #1b2028;
+
+        color: #e8eaed;
+
+        font-size: 14px;
+
+        cursor: pointer;
+
+        transition:
+            background 0.15s ease,
+            transform 0.1s ease,
+            border-color 0.15s ease;
+    }
+
+    button:hover {
+        background: #252c36;
+
+        border-color:
+            rgba(255, 255, 255, 0.16);
+    }
+
+    button:active {
+        transform: scale(0.98);
+
+        background: #303844;
+    }
+
+
+    /* =====================================================
+       SLIDER
+       ===================================================== */
+
+    .slider-container {
+        margin-top: 18px;
+    }
+
+    .slider-container label {
+        display: block;
+
+        margin-bottom: 8px;
+
+        font-size: 13px;
+
+        color: #aeb5bf;
+    }
+
+    input[type="range"] {
+        width: 100%;
+
+        height: 6px;
+
+        accent-color: #ffffff;
+
+        cursor: pointer;
+    }
+
+    #brightnessValue {
+        margin-top: 6px;
+
+        text-align: right;
+
+        font-size: 12px;
+
+        color: #858d99;
+    }
+
+
+    /* =====================================================
+       STATUS
+       ===================================================== */
+
+    #status {
+        margin-top: 15px;
+
+        padding-top: 12px;
+
+        border-top: 1px solid
+            rgba(255, 255, 255, 0.06);
+
+        font-size: 11px;
+
+        color: #737c88;
+    }
+
+
+    /* =====================================================
+       HANDY
+       ===================================================== */
+
+@media (max-width: 600px) {
+
+    #ui {
+        top: 10px;
+        left: 10px;
+        right: 10px;
+        bottom: auto;
+
+        width: auto;
+
+        max-height: 42vh;
+
+        overflow-y: auto;
+
+        padding: 10px;
+
+        border-radius: 12px;
+    }
+
+    #ui h3 {
+        margin-bottom: 8px;
+        font-size: 15px;
+    }
+
+    #ui hr {
+        margin: 8px 0;
+    }
+
+    button {
+        min-height: 40px;
+
+        margin: 4px 0;
+
+        font-size: 13px;
+    }
+
+    .slider-container {
+        margin-top: 10px;
+    }
+
+    #status {
+        margin-top: 8px;
+        padding-top: 7px;
+    }
+}
+
+
+    /* =====================================================
+       SEHR KLEINE HANDYS
+       ===================================================== */
+
+    @media (max-width: 380px) {
+
+        #ui {
+            padding: 9px;
+
+            bottom: 7px;
+            left: 7px;
+            right: 7px;
+        }
+
+        button {
+            min-height: 40px;
+
+            font-size: 13px;
+        }
+    }
+
+
+    </style>
+
+    <!--
+        Three.js
+    -->
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js",
+            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"
+        }
+    }
+    </script>
+</head>
+
+<body>
+
+<div id="container"></div>
+
+<div id="ui">
+
+    <h3>Schrank Steuerung</h3>
+
+    <button id="lampOpen">
+        Lampe AN
+    </button>
+
+    <button id="lampClose">
+        Lampe AUS
+    </button>
+
+    <button id="lampToggle">
+        Lampe Toggle
+    </button>
+
+    <hr>
+
+    <button id="drawerOpen">
+        Schublade öffnen
+    </button>
+
+    <button id="drawerClose">
+        Schublade schließen
+    </button>
+
+    <button id="cabinetToggle">
+        Schrank ausblenden
+    </button>
+
+    <div class="slider-container">
+
+        <label for="brightness">
+            Sonnen-Helligkeit:
+        </label>
+
+        <input
+            id="brightness"
+            type="range"
+            min="0"
+            max="2"
+            step="0.01"
+            value="0.5"
+        >
+
+        <div id="brightnessValue">
+            0.50
+        </div>
+
+    </div>
+
+    <div id="status">
+        Lade Schrank...
+    </div>
+
+</div>
+
+
+<script type="module">
+
+import * as THREE from "three";
+
+import { GLTFLoader }
+    from "three/addons/loaders/GLTFLoader.js";
+
+import { OrbitControls }
+    from "three/addons/controls/OrbitControls.js";
+
+
+// ============================================================
+// SZENE
+// ============================================================
+
+const scene = new THREE.Scene();
+
+scene.background = new THREE.Color(0x090b0f);
+
+
+// ============================================================
+// KAMERA
+// ============================================================
+
+const camera = new THREE.PerspectiveCamera(
+    45,
+    window.innerWidth / window.innerHeight,
+    0.1,
+    100
+);
+
+camera.position.set(
+    3,
+    2.2,
+    4
+);
+
+
+// ============================================================
+// RENDERER
+// ============================================================
+
+const renderer = new THREE.WebGLRenderer({
+    antialias: true
+});
+
+renderer.setSize(
+    window.innerWidth,
+    window.innerHeight
+);
+
+renderer.setPixelRatio(
+    Math.min(window.devicePixelRatio, 2)
+);
+
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+
+renderer.toneMapping =
+    THREE.ACESFilmicToneMapping;
+
+renderer.toneMappingExposure = 1;
+
+document
+    .getElementById("container")
+    .appendChild(renderer.domElement);
+
+
+// ============================================================
+// ORBIT CONTROLS
+// ============================================================
+
+const controls = new OrbitControls(
+    camera,
+    renderer.domElement
+);
+
+controls.enableDamping = true;
+controls.dampingFactor = 0.05;
+
+// Handyfreundlich
+controls.enablePan = true;
+controls.enableZoom = true;
+controls.enableRotate = true;
+
+// Touch-Gesten
+controls.touches.ONE =
+    THREE.TOUCH.PAN;
+
+controls.touches.TWO =
+    THREE.TOUCH.DOLLY_ROTATE;
+
+controls.enableDamping = true;
+
+controls.dampingFactor = 0.05;
+
+controls.target.set(
+    0,
+    1,
+    0
+);
+
+
+// ============================================================
+// VARIABLEN
+// ============================================================
+
+let model = null;
+
+const animations = {};
+
+let mixer = null;
+
+let sonnen = [];
+
+
+// ============================================================
+// INNENLAMPE
+// ============================================================
+
+let innenLampe = null;
+
+let innenLampeGruppe = null;
+
+let lampeAn = false;
+
+
+// ============================================================
+// HIER KANNST DU DIE POSITION DER LAMPE EINSTELLEN
+// ============================================================
+//
+// X = links / rechts
+// Y = hoch / runter
+// Z = vorne / hinten
+//
+// Diese Werte werden NICHT animiert.
+//
+// ============================================================
+
+const LAMPE_X = -0.33;
+
+const LAMPE_Y = 0.55;
+
+const LAMPE_Z = 0.0;
+
+
+// ============================================================
+// GLTF LOADER
+// ============================================================
+
+const loader = new GLTFLoader();
+
+
+// ============================================================
+// SCHRANK LADEN
+// ============================================================
+
+loader.load(
+
+    "schrank.glb",
+
+    function (gltf) {
+
+        model = gltf.scene;
+
+
+        // ----------------------------------------------------
+        // MODEL ZENTRIEREN
+        // ----------------------------------------------------
+
+        const box =
+            new THREE.Box3().setFromObject(model);
+
+        const center =
+            box.getCenter(new THREE.Vector3());
+
+        model.position.sub(center);
+
+
+        // ----------------------------------------------------
+        // MODEL ZUR SZENE
+        // ----------------------------------------------------
+
+        scene.add(model);
+
+
+        // ----------------------------------------------------
+        // ANIMATIONEN
+        // ----------------------------------------------------
+
+        if (gltf.animations.length > 0) {
+
+            mixer = new THREE.AnimationMixer(model);
+
+            gltf.animations.forEach(
+                clip => {
+
+                    animations[clip.name] =
+                        clip;
+
+                    console.log(
+                        "Animation gefunden:",
+                        clip.name
+                    );
+                }
+            );
+        }
+
+
+        // ----------------------------------------------------
+        // OBJEKTE AUSGEBEN
+        // ----------------------------------------------------
+
+        console.log(
+            "========== GLB OBJEKTE =========="
+        );
+
+        model.traverse(
+            object => {
+
+                console.log(
+                    "Name:",
+                    object.name,
+                    "| Typ:",
+                    object.type
+                );
+
+            }
+        );
+
+        console.log(
+            "========== ENDE =========="
+        );
+
+
+        // ----------------------------------------------------
+        // LICHTER ERSTELLEN
+        // ----------------------------------------------------
+
+        createLights();
+
+
+        // ----------------------------------------------------
+        // STATUS
+        // ----------------------------------------------------
+
+        document
+            .getElementById("status")
+            .textContent =
+            "Schrank geladen";
+
+
+        console.log(
+            "Schrank erfolgreich geladen."
+        );
+
+    },
+
+    function (xhr) {
+
+        if (xhr.total) {
+
+            const percent =
+                xhr.loaded /
+                xhr.total *
+                100;
+
+            document
+                .getElementById("status")
+                .textContent =
+                "Lade Schrank: " +
+                Math.round(percent) +
+                "%";
+        }
+
+    },
+
+    function (error) {
+
+        console.error(
+            "Fehler beim Laden von schrank.glb:",
+            error
+        );
+
+        document
+            .getElementById("status")
+            .textContent =
+            "Fehler beim Laden der GLB-Datei";
+
+    }
+
+);
+
+
+// ============================================================
+// LICHTER
+// ============================================================
+
+function createLights() {
+
+
+    // ========================================================
+    // SONNE 1
+    // ========================================================
+
+    const sonne = new THREE.DirectionalLight(
+        0xffffff,
+        0.5
+    );
+
+    sonne.position.set(
+        4,
+        6,
+        4
+    );
+
+    scene.add(sonne);
+
+    sonnen.push(sonne);
+
+
+    // ========================================================
+    // SONNE 2
+    // ========================================================
+
+    const sonne1 = new THREE.DirectionalLight(
+        0xffffff,
+        0.5
+    );
+
+    sonne1.position.set(
+        -4,
+        5,
+        2
+    );
+
+    scene.add(sonne1);
+
+    sonnen.push(sonne1);
+
+
+    // ========================================================
+    // SONNE 3
+    // ========================================================
+
+    const sonne2 = new THREE.DirectionalLight(
+        0xffffff,
+        0.5
+    );
+
+    sonne2.position.set(
+        0,
+        3,
+        -5
+    );
+
+    scene.add(sonne2);
+
+    sonnen.push(sonne2);
+
+
+    // ========================================================
+    // INNENLAMPE
+    // ========================================================
+
+    createInnenLampe();
+
+}
+
+
+// ============================================================
+// INNENLAMPE ERSTELLEN
+// ============================================================
+
+function createInnenLampe() {
+
+    // ========================================================
+    // GRUPPE
+    // ========================================================
+
+    innenLampeGruppe = new THREE.Group();
+
+    // Manuelle Position
+    innenLampeGruppe.position.set(
+        LAMPE_X,
+        LAMPE_Y,
+        LAMPE_Z
+    );
+
+    scene.add(innenLampeGruppe);
+
+    // ========================================================
+    // NORMALE INNENLAMPE
+    // ========================================================
+    //
+    // PointLight strahlt in ALLE Richtungen.
+    // Keine feste Richtung nach unten.
+    //
+    // ========================================================
+
+    innenLampe = new THREE.PointLight(
+        0xffe5c4,   // warmes Licht
+        0,           // anfangs aus
+        1,           // Reichweite
+        0.5            // Abnahme
+    );
+
+
+    // Licht sitzt in der Mitte der roten Markierung
+
+    innenLampe.position.set(
+        0,
+        0,
+        0
+    );
+
+
+    innenLampeGruppe.add(
+        innenLampe
+    );
+
+
+    console.log(
+        "Innenlampe erstellt bei:",
+        LAMPE_X,
+        LAMPE_Y,
+        LAMPE_Z
+    );
+}
+
+
+// ============================================================
+// LAMPE AN / AUS
+// ============================================================
+
+function setLampPower(an) {
+
+    if (!innenLampe) return;
+
+    lampeAn = an;
+
+    if (an) {
+
+        innenLampe.intensity = 3;
+
+        console.log("Innenlampe AN");
+
+    } else {
+
+        innenLampe.intensity = 0;
+
+        console.log("Innenlampe AUS");
+
+    }
+}
+
+
+// ============================================================
+// GLB ANIMATION ABSPIELEN
+// ============================================================
+
+function playAnimation(name) {
+
+    if (!mixer) {
+
+        console.warn(
+            "Kein AnimationMixer vorhanden."
+        );
+
+        return;
+    }
+
+
+    const clip =
+        animations[name];
+
+
+    if (!clip) {
+
+        console.warn(
+            "Animation nicht gefunden:",
+            name
+        );
+
+        return;
+    }
+
+
+    mixer.stopAllAction();
+
+
+    const action =
+        mixer.clipAction(clip);
+
+
+    action.reset();
+
+    action.setLoop(
+        THREE.LoopOnce
+    );
+
+    action.clampWhenFinished = true;
+
+    action.play();
+
+
+    console.log(
+        "Animation abgespielt:",
+        name
+    );
+
+}
+
+
+// ============================================================
+// SONNEN-HELLIGKEIT
+// ============================================================
+
+function setBrightness(value) {
+
+    const brightness =
+        Number(value);
+
+
+    sonnen.forEach(
+        light => {
+
+            light.intensity =
+                brightness;
+
+        }
+    );
+
+
+    document
+        .getElementById("brightnessValue")
+        .textContent =
+        brightness.toFixed(2);
+
+
+    console.log(
+        "Neue Helligkeit:",
+        brightness,
+        "Lichter:",
+        sonnen.length
+    );
+
+}
+
+
+// ============================================================
+// BUTTONS – LAMPE
+// ============================================================
+
+document
+    .getElementById("lampOpen")
+    .addEventListener(
+        "click",
+        () => {
+
+            setLampPower(true);
+
+        }
+    );
+
+
+document
+    .getElementById("lampClose")
+    .addEventListener(
+        "click",
+        () => {
+
+            setLampPower(false);
+
+        }
+    );
+
+
+document
+    .getElementById("lampToggle")
+    .addEventListener(
+        "click",
+        () => {
+
+            setLampPower(
+                !lampeAn
+            );
+
+        }
+    );
+
+
+// ============================================================
+// BUTTONS – SCHUBLADE
+// ============================================================
+
+document
+    .getElementById("drawerOpen")
+    .addEventListener(
+        "click",
+        () => {
+
+            playAnimation(
+                "schubladeöffnen"
+            );
+
+        }
+    );
+
+
+document
+    .getElementById("drawerClose")
+    .addEventListener(
+        "click",
+        () => {
+
+            playAnimation(
+                "schubladeschließen"
+            );
+
+             // Innenlampe ausschalten
+            setLampPower(false);
+
+        }
+    );
+
+
+
+    let schrankSichtbar = true;
+
+document
+    .getElementById("cabinetToggle")
+    .addEventListener(
+        "click",
+        () => {
+
+            if (!model) return;
+
+            const schrank =
+                model.getObjectByName("schrank");
+
+            if (!schrank) {
+
+                console.warn(
+                    'Objekt "schrank" wurde nicht gefunden.'
+                );
+
+                return;
+            }
+
+
+            schrankSichtbar =
+                !schrankSichtbar;
+
+            schrank.visible =
+                schrankSichtbar;
+
+
+            document
+                .getElementById("cabinetToggle")
+                .textContent =
+                schrankSichtbar
+                    ? "Schrank ausblenden"
+                    : "Schrank anzeigen";
+        }
+    );
+
+
+// ============================================================
+// HELLIGKEITS-SLIDER
+// ============================================================
+
+document
+    .getElementById("brightness")
+    .addEventListener(
+        "input",
+        function () {
+
+            setBrightness(
+                this.value
+            );
+
+        }
+    );
+
+
+// ============================================================
+// FENSTERGRÖSSE
+// ============================================================
+
+window.addEventListener(
+    "resize",
+    () => {
+
+        camera.aspect =
+            window.innerWidth /
+            window.innerHeight;
+
+        camera.updateProjectionMatrix();
+
+
+        renderer.setSize(
+            window.innerWidth,
+            window.innerHeight
+        );
+
+    }
+);
+
+
+// ============================================================
+// ANIMATION LOOP
+// ============================================================
+
+const clock =
+    new THREE.Clock();
+
+
+function animate() {
+
+    requestAnimationFrame(
+        animate
+    );
+
+
+    const delta =
+        clock.getDelta();
+
+
+    // GLB Animationen
+    if (mixer) {
+
+        mixer.update(delta);
+
+    }
+
+
+    controls.update();
+
+
+    renderer.render(
+        scene,
+        camera
+    );
+
+}
+
+
+animate();
+
+</script>
+
+</body>
+</html>
